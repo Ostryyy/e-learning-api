@@ -40,10 +40,7 @@ exports.register = async (req, res) => {
       from: process.env.EMAIL,
       to: user.email,
       subject: "Account Activation",
-      text: `You are receiving this because you (or someone else) have registered an account.\n\n
-             Please click on the following link, or paste this into your browser to complete the process:\n\n
-             ${process.env.ACTIVATE_ACCOUNT_ADDRESS}/${activationToken}\n\n
-             If you did not request this, please ignore this email.\n`,
+      text: `You are receiving this because you (or someone else) have registered an account.\n\nPlease click on the following link, or paste this into your browser to complete the process:\n\n${process.env.ACTIVATE_ACCOUNT_ADDRESS}/${activationToken}\n\nIf you did not request this, please ignore this email.\n`,
     };
 
     transporter.sendMail(mailOptions, (err, response) => {
@@ -155,10 +152,7 @@ exports.forgotPassword = async (req, res) => {
       from: process.env.EMAIL,
       to: user.email,
       subject: "Password Reset",
-      text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
-             Please click on the following link, or paste this into your browser to complete the process:\n\n
-              ${process.env.RESET_PASSWORD_ADDRESS}/${token}\n\n
-             If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+      text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\nPlease click on the following link, or paste this into your browser to complete the process:\n\n${process.env.RESET_PASSWORD_ADDRESS}/${token}\n\nIf you did not request this, please ignore this email and your password will remain unchanged.\n`,
     };
 
     transporter.sendMail(mailOptions, (err, response) => {
