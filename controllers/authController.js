@@ -194,3 +194,53 @@ exports.resetPassword = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+
+exports.resendActivationEmail = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    let user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ msg: "User not found" });
+    }
+
+    if (user.isActive) {
+      return res.status(400).json({ msg: "Account is already activated" });
+    }
+
+    const activationToken = crypto.randomBytes(20).toString("hex");
+    user.activationToken = activationToken;
+    user.activationExpires = Date.now() + 3600000; // 1 hour
+
+    await user.save();
+
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: process.env.EMAIL_PORT,
+      secure: true,
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: user.email,
+      subject: "Resend Account Activation",
+      text: `You are receiving this because you (or someone else) have requested the activation of your account.\n\nPlease click on the following link, or paste this into your browser to complete the process:\n\n${process.env.ACTIVATE_ACCOUNT_ADDRESS}/${activationToken}\n\nIf you did not request this, please ignore this email.\n`,
+    };
+
+    transporter.sendMail(mailOptions, (err, response) => {
+      if (err) {
+        console.error("There was an error: ", err);
+        res.status(500).send("Error in sending email");
+      } else {
+        res.status(200).json({ msg: "Activation email sent" });
+      }
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+};
